@@ -32,7 +32,7 @@
 
 
    ;; theme
-   (load-theme 'monokai)
+   (load-theme 'monokai t)
    (require 'doom-modeline)
    (doom-modeline-mode 1)
 
@@ -48,7 +48,7 @@
  '(custom-safe-themes
    '("f4cdc8dea941e3c7e92b907e62cdc03e0483a350b738a43c2e118ce6be9880a6" "830596655dc39879096d9b7772768de6042fb5a4293c6b90c98a9b98bce96e4a" "78e6be576f4a526d212d5f9a8798e5706990216e9be10174e3f3b015b8662e27" "02f57ef0a20b7f61adce51445b68b2a7e832648ce2e7efb19d217b6454c1b644" "05626f77b0c8c197c7e4a31d9783c4ec6e351d9624aa28bc15e7f6d6a6ebd926" "60ada0ff6b91687f1a04cc17ad04119e59a7542644c7c59fc135909499400ab8" default))
  '(package-selected-packages
-   '(moe-theme rust-mode melancholy-theme monokai-theme corfu affe use-package fireplace vertico circe-notifications magit vterm helpful evil doom-modeline company circe evil-magit bind-key)))
+   '(flycheck nyan-mode which-key rainbow-delimiters moe-theme rust-mode melancholy-theme monokai-theme corfu affe use-package fireplace vertico circe-notifications magit vterm helpful evil doom-modeline company circe evil-magit bind-key)))
    
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -59,7 +59,7 @@
 
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
-(setq indent-line-function 'insert-tab)
+;;(setq indent-line-function 'insert-tab)
 
 (setq c-basic-offset 4)
 
@@ -77,3 +77,6 @@
 
 (load-file "~/.emacs.d/company-clang.el")
 
+(which-key-mode)
+
+(global-flycheck-mode)
