@@ -117,6 +117,6 @@
 (define-key evil-normal-state-map (kbd "SPC w m") 'kill-other-buffers)
 (define-key evil-normal-state-map (kbd "SPC SPC") 'find-file)
 (define-key evil-normal-state-map (kbd "SPC g") 'magit-status)
-(define-key evil-normal-state-map (kbd "SPC p b" 'python-black-buffer)
-(define-key evil-normal-state-map (kbd "SPC p r" 'python-black-region)
+(define-key evil-normal-state-map (kbd "SPC p b") 'python-black-buffer)
+(define-key evil-normal-state-map (kbd "SPC p r") 'python-black-region)
 ;;; init.el ends here
