@@ -14,109 +14,108 @@
   ;; (package-initialize)
    (package-refresh-contents)
 
-   ;; Download Evil
-   (unless (package-installed-p 'evil)
-       (package-install 'evil))
+(defun ensure-package-installed (&rest packages)
+  "Assure every package is installed, ask for installation if it’s not.
 
-   (unless (package-installed-p 'use-package)
-       (package-install 'use-package))
-   ;; helpful
-   ;; Enable Evil
-   (require 'evil)
-   (evil-mode 1)
+Return a list of installed packages or nil for every skipped package."
+  (mapcar
+   (lambda (package)
+     (if (package-installed-p package)
+         nil
+       (if (y-or-n-p (format "Package %s is missing. Install it? " package))
+           (package-install package)
+         package)))
+   packages))
+
+(unless package-archive-contents
+  (package-refresh-contents))
+
+(ensure-package-installed 'use-package 'magit 'helm 'evil 'evil-collection 'monokai-theme 'doom-modeline 'vertico 'company 'lsp-mode 'lsp-ui 'company 'lsp-treemacs 'flymake 'lsp-pyright 'ccls 'rainbow-delimiters)
+
+;; evil
+(setq evil-want-keybinding nil)
+(require 'evil)
+(evil-mode 1)
+(require 'evil-collection)
+(evil-collection-init)
+
+;; appearence
+(load-theme 'monokai t)
+(menu-bar-mode -1)
+(scroll-bar-mode -1)
+(tool-bar-mode -1)
+(require 'doom-modeline)
+(doom-modeline-mode 1)
+(require 'vertico)
+(vertico-mode 1)
+(global-linum-mode)
 
 
-   ;; get rid of ugly gui
-   (menu-bar-mode -1)
-   (scroll-bar-mode -1)
-   (tool-bar-mode -1)
+;; Python
+(add-hook 'python-mode-hook #'lsp-deferred)
+
+;; Rust
+(add-hook 'rust-mode-hook #'lsp-deferred)
+
+;; TypeScript and Angular
+(add-hook 'typescript-mode-hook #'lsp-deferred)
+(add-hook 'web-mode-hook #'lsp-deferred)
+
+;; lsp
+(require 'lsp-mode)
+(require 'lsp)
+(lsp-register-client
+ (make-lsp-client :new-connection (lsp-stdio-connection
+                                   (lambda ()
+                                     (cons "node"
+                                           (list (expand-file-name "~/path/to/your/global/node_modules/@angular/language-server")
+                                                 "--ngProbeLocations"
+                                                 (expand-file-name "~/path/to/your/global/node_modules")
+                                                 "--tsProbeLocations"
+                                                 (expand-file-name "~/path/to/your/global/node_modules")
+                                                 "--stdio"))))
+                   :activation-fn (lsp-activate-on "angular")
+                   :priority -1
+                   :add-on? nil
+                   :server-id 'angular-ls))
+
+(require 'lsp-ui)
+(setq lsp-ui-sideline-enable t
+      lsp-ui-sideline-show-hover t
+      lsp-ui-sideline-show-code-actions t
+      lsp-ui-peek-enable t)
+(add-hook 'lsp-mode-hook 'lsp-ui-mode)
 
 
+;; Replace "~/path/to/your/global/node_modules" with the actual path to your global node_modules directory.
+ 
+;; company
+(require 'company)
+(add-hook 'after-init-hook 'global-company-mode)
+(setq company-minimum-prefix-length 1
+      company-idle-delay 0.0
+      company-selection-wrap-around t
+      company-tooltip-align-annotations t
+      company-require-match 'never)
 
-   ;; theme
-   (load-theme 'monokai t)
-   (require 'doom-modeline)
-   (doom-modeline-mode 1)
+(defun my/lsp-mode-setup ()
+  (setq-local company-backends '((company-capf :with company-yasnippet))))
+(add-hook 'lsp-mode-hook 'my/lsp-mode-setup)
 
-   (require 'vertico)
-   (vertico-mode 1)
+;; Flymake
+(require 'flymake)
+(add-hook 'lsp-mode-hook 'flymake-mode)
 
-   
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   '("d824f0976625bb3bb38d3f6dd10b017bdb4612f27102545a188deef0d88b0cd9" "11cc65061e0a5410d6489af42f1d0f0478dbd181a9660f81a692ddc5f948bf34" "d516f1e3e5504c26b1123caa311476dc66d26d379539d12f9f4ed51f10629df3" "f00a605fb19cb258ad7e0d99c007f226f24d767d01bf31f3828ce6688cbdeb22" "ab729ed3a8826bf8927b16be7767aa449598950f45ddce7e4638c0960a96e0f1" "f4cdc8dea941e3c7e92b907e62cdc03e0483a350b738a43c2e118ce6be9880a6" "830596655dc39879096d9b7772768de6042fb5a4293c6b90c98a9b98bce96e4a" "78e6be576f4a526d212d5f9a8798e5706990216e9be10174e3f3b015b8662e27" "02f57ef0a20b7f61adce51445b68b2a7e832648ce2e7efb19d217b6454c1b644" "05626f77b0c8c197c7e4a31d9783c4ec6e351d9624aa28bc15e7f6d6a6ebd926" "60ada0ff6b91687f1a04cc17ad04119e59a7542644c7c59fc135909499400ab8" default))
  '(package-selected-packages
-   '(geiser-mit racket-mode beacon scheme-complete docker darktooth-theme python-black exec-path-from-shell web-mode json-mode js2-mode tide typescript-mode kaolin-themes darkmine-theme flycheck nyan-mode which-key rainbow-delimiters moe-theme rust-mode melancholy-theme monokai-theme corfu affe use-package fireplace vertico circe-notifications magit vterm helpful evil doom-modeline company circe evil-magit bind-key)))
-   
+   '(flymake vterm vertico use-package rainbow-delimiters monokai-theme magit lsp-ui lsp-treemacs lsp-pyright helm evil-visual-mark-mode evil-collection doom-modeline company ccls)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 4)
-;;(setq indent-line-function 'insert-tab)
-(global-linum-mode)
-
-(setq c-basic-offset 4)
-
-(load-file "~/.emacs.d/evil-magit.el")
-
-(require 'evil-magit)
-
-;;company
-
-(setq company-idle-delay 0.01)
-(setq company-minimum-prefix-lenth 1)
-
-;;(use-package company-box
-;;  :hook (company-mode . company-box-mode))
-
-(load-file "~/.emacs.d/company-clang.el")
-
-(which-key-mode)
-
-(global-company-mode)
-(global-flycheck-mode)
-
-
-(defun kill-other-buffers ()
-      "Kill all other buffers."
-      (interactive)
-      (mapc 'kill-buffer (delq (current-buffer) (buffer-list))))
-
-(defun setup-tide-mode ()
-  (interactive)
-  (tide-setup)
-  (flycheck-mode +1)
-  (setq flycheck-check-syntax-automatically '(save mode-enabled))
-  (eldoc-mode +1)
-  (tide-hl-identifier-mode +1)
-  ;; company is an optional dependency. You have to
-  ;; install it separately via package-install
-  ;; `M-x package-install [ret] company`
-  (company-mode +1))
-
-;; aligns annotation to the right hand side
-(setq company-tooltip-align-annotations t)
-
-(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-(add-to-list 'auto-mode-alist '("\\.sm\\'" . scheme-mode))
-(flycheck-add-mode 'javascript-eslint 'js2-mode)
-(flycheck-add-mode 'javascript-eslint 'tide-mode)
-
-
-;;BINDINGS
-;;  python
-(define-key evil-normal-state-map (kbd "SPC w m") 'kill-other-buffers)
-(define-key evil-normal-state-map (kbd "SPC SPC") 'find-file)
-(define-key evil-normal-state-map (kbd "SPC g") 'magit-status)
-(define-key evil-normal-state-map (kbd "SPC p b") 'python-black-buffer)
-(define-key evil-normal-state-map (kbd "SPC p r") 'python-black-region)
-;;; init.el ends here
