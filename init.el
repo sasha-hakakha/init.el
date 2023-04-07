@@ -30,7 +30,7 @@ Return a list of installed packages or nil for every skipped package."
 (unless package-archive-contents
   (package-refresh-contents))
 
-(ensure-package-installed 'use-package 'magit 'helm 'evil 'evil-collection 'monokai-theme 'doom-modeline 'vertico 'company 'company 'eglot 'flycheck 'ccls 'rainbow-delimiters 'typescript-mode 'yasnippet )
+(ensure-package-installed 'use-package 'magit 'helm 'evil 'evil-collection 'monokai-theme 'doom-modeline 'vertico 'company 'company 'eglot 'flycheck 'ccls 'rainbow-delimiters 'typescript-mode 'yasnippet 'ivy 'counsel 'which-key 'projectile 'counsel-projectile)
 
 ;; evil
 (setq evil-want-keybinding nil)
@@ -39,7 +39,7 @@ Return a list of installed packages or nil for every skipped package."
 (require 'evil-collection)
 (evil-collection-init)
 
-;; appearence
+;; Appearence
 (load-theme 'monokai t)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
@@ -49,6 +49,7 @@ Return a list of installed packages or nil for every skipped package."
 (require 'vertico)
 (vertico-mode 1)
 (global-linum-mode)
+(which-key-mode)
 ;; Eglot
 (require 'eglot)
 (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
@@ -100,17 +101,30 @@ Return a list of installed packages or nil for every skipped package."
       company-tooltip-align-annotations t
       company-require-match 'never)
 
+;; Ivy
+(require 'counsel)
+(global-set-key (kbd "M-x") 'counsel-M-x)
+(global-set-key (kbd "C-c r") 'counsel-projectile-rg)
+(counsel-projectile-mode)
+(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 
-;; Flymake
-(require 'flymake)
 
+;; Navigation
+(defun open-repos ()
+  "Open dired in the ~/repos directory."
+  (interactive)
+  (dired "~/repos"))
+(global-set-key (kbd "C-c R") 'open-repos)
+
+;; custom set vars
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(helm-minibuffer-history-key "M-p")
  '(package-selected-packages
-   '(eglot flymake-eslint tide typescript-mode flymake vterm vertico use-package rainbow-delimiters monokai-theme magit lsp-ui lsp-treemacs lsp-pyright helm evil-visual-mark-mode evil-collection doom-modeline company ccls)))
+   '(counsel-projectile which-key counsel swiper ivy eglot flymake-eslint tide typescript-mode flymake vterm vertico use-package rainbow-delimiters monokai-theme magit lsp-ui lsp-treemacs lsp-pyright helm evil-visual-mark-mode evil-collection doom-modeline company ccls)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
