@@ -30,7 +30,7 @@ Return a list of installed packages or nil for every skipped package."
 (unless package-archive-contents
   (package-refresh-contents))
 
-(ensure-package-installed 'use-package 'magit 'helm 'evil 'evil-collection 'monokai-theme 'doom-modeline 'vertico 'company 'lsp-mode 'lsp-ui 'company 'lsp-treemacs 'flymake 'lsp-pyright 'ccls 'rainbow-delimiters)
+(ensure-package-installed 'use-package 'magit 'helm 'evil 'evil-collection 'monokai-theme 'doom-modeline 'vertico 'company 'company 'eglot 'flycheck 'ccls 'rainbow-delimiters 'typescript-mode 'yasnippet )
 
 ;; evil
 (setq evil-want-keybinding nil)
@@ -49,47 +49,49 @@ Return a list of installed packages or nil for every skipped package."
 (require 'vertico)
 (vertico-mode 1)
 (global-linum-mode)
+;; Eglot
+(require 'eglot)
+(add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
+(add-hook 'typescript-mode-hook 'eglot-ensure)
+
+;; flycheck
+(require 'flycheck)
+
+(require 'company)
+(add-hook 'after-init-hook 'global-company-mode)
+(add-hook 'typescript-mode-hook 'company-mode)
+
+(add-hook 'eglot-managed-mode-hook (lambda ()
+                                    (add-to-list (make-local-variable 'company-backends)
+                                                 'company-capf)))
+
+(add-to-list 'eglot-server-programs '(web-mode . ("typescript-language-server" "--stdio")))
+(add-hook 'web-mode-hook 'eglot-ensure)
+
+
+(defun setup-tide-mode ()
+  (interactive)
+  (tide-setup)
+  (flycheck-mode +1)
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))
+  (eldoc-mode +1)
+  (tide-hl-identifier-mode +1)
+  (company-mode +1))
+
+
+(add-hook 'typescript-mode-hook #'setup-tide-mode)
 
 
 ;; Python
-(add-hook 'python-mode-hook #'lsp-deferred)
 
 ;; Rust
-(add-hook 'rust-mode-hook #'lsp-deferred)
 
 ;; TypeScript and Angular
-(add-hook 'typescript-mode-hook #'lsp-deferred)
-(add-hook 'web-mode-hook #'lsp-deferred)
+(require 'typescript-mode)
+(add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-mode))
 
-;; lsp
-(require 'lsp-mode)
-(require 'lsp)
-(lsp-register-client
- (make-lsp-client :new-connection (lsp-stdio-connection
-                                   (lambda ()
-                                     (cons "node"
-                                           (list (expand-file-name "~/path/to/your/global/node_modules/@angular/language-server")
-                                                 "--ngProbeLocations"
-                                                 (expand-file-name "~/path/to/your/global/node_modules")
-                                                 "--tsProbeLocations"
-                                                 (expand-file-name "~/path/to/your/global/node_modules")
-                                                 "--stdio"))))
-                   :activation-fn (lsp-activate-on "angular")
-                   :priority -1
-                   :add-on? nil
-                   :server-id 'angular-ls))
-
-(require 'lsp-ui)
-(setq lsp-ui-sideline-enable t
-      lsp-ui-sideline-show-hover t
-      lsp-ui-sideline-show-code-actions t
-      lsp-ui-peek-enable t)
-(add-hook 'lsp-mode-hook 'lsp-ui-mode)
-
-
-;; Replace "~/path/to/your/global/node_modules" with the actual path to your global node_modules directory.
  
-;; company
+;; Company
 (require 'company)
 (add-hook 'after-init-hook 'global-company-mode)
 (setq company-minimum-prefix-length 1
@@ -98,13 +100,9 @@ Return a list of installed packages or nil for every skipped package."
       company-tooltip-align-annotations t
       company-require-match 'never)
 
-(defun my/lsp-mode-setup ()
-  (setq-local company-backends '((company-capf :with company-yasnippet))))
-(add-hook 'lsp-mode-hook 'my/lsp-mode-setup)
 
 ;; Flymake
 (require 'flymake)
-(add-hook 'lsp-mode-hook 'flymake-mode)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -112,7 +110,7 @@ Return a list of installed packages or nil for every skipped package."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(flymake vterm vertico use-package rainbow-delimiters monokai-theme magit lsp-ui lsp-treemacs lsp-pyright helm evil-visual-mark-mode evil-collection doom-modeline company ccls)))
+   '(eglot flymake-eslint tide typescript-mode flymake vterm vertico use-package rainbow-delimiters monokai-theme magit lsp-ui lsp-treemacs lsp-pyright helm evil-visual-mark-mode evil-collection doom-modeline company ccls)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
