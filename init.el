@@ -18,6 +18,7 @@
   "Assure every package is installed, ask for installation if it’s not.
 
 Return a list of installed packages or nil for every skipped package."
+  (package-refresh-contents)
   (mapcar
    (lambda (package)
      (if (package-installed-p package)
@@ -30,7 +31,7 @@ Return a list of installed packages or nil for every skipped package."
 (unless package-archive-contents
   (package-refresh-contents))
 
-(ensure-package-installed 'use-package 'magit 'helm 'evil 'evil-collection 'monokai-theme 'doom-modeline 'vertico 'company 'company 'eglot 'flycheck 'ccls 'rainbow-delimiters 'yasnippet 'ivy 'counsel 'which-key 'projectile 'counsel-projectile 'popup 'web-mode 'json-reformat 'recentf)
+(ensure-package-installed 'use-package 'magit 'helm 'evil 'evil-collection 'monokai-theme 'doom-modeline 'vertico 'company 'company 'eglot 'flycheck 'ccls 'rainbow-delimiters 'yasnippet 'ivy 'counsel 'which-key 'projectile 'counsel-projectile 'popup 'web-mode 'json-reformat 'recentf 'web-beautify)
 
 ;; evil
 (setq evil-want-keybinding nil)
@@ -50,6 +51,24 @@ Return a list of installed packages or nil for every skipped package."
 (vertico-mode 1)
 (global-linum-mode)
 (which-key-mode)
+(require 'rainbow-delimiters)
+(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+
+;; movement
+(evil-define-key 'normal global-map (kbd "SPC h") 'evil-window-left)
+(evil-define-key 'normal global-map (kbd "SPC j") 'evil-window-down)
+(evil-define-key 'normal global-map (kbd "SPC k") 'evil-window-up)
+(evil-define-key 'normal global-map (kbd "SPC l") 'evil-window-right)
+
+(evil-define-key 'normal global-map (kbd "SPC w h") 'evil-window-vsplit)
+(evil-define-key 'normal global-map (kbd "SPC w j") 'evil-window-split)
+(evil-define-key 'normal global-map (kbd "SPC w k") 'evil-window-split)
+(evil-define-key 'normal global-map (kbd "SPC w l") 'evil-window-vsplit)
+
+;; typing behavior (?)
+(electric-pair-mode)
+(setq electric-pair-preserve-balance t)
+
 ;; Eglot
 (require 'eglot)
 (add-to-list 'eglot-server-programs '(web-mode . ("typescript-language-server" "--stdio")))
