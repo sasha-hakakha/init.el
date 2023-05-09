@@ -31,7 +31,7 @@ Return a list of installed packages or nil for every skipped package."
 (unless package-archive-contents
   (package-refresh-contents))
 
-(ensure-package-installed 'use-package 'magit 'helm 'evil 'evil-collection 'monokai-theme 'doom-modeline 'vertico 'company 'company 'eglot 'flycheck 'ccls 'rainbow-delimiters 'yasnippet 'ivy 'counsel 'which-key 'projectile 'counsel-projectile 'popup 'web-mode 'json-reformat 'recentf 'web-beautify)
+(ensure-package-installed 'use-package 'magit 'helm 'evil 'evil-collection 'monokai-theme 'doom-modeline 'vertico 'company 'company 'eglot 'flycheck 'ccls 'rainbow-delimiters 'yasnippet 'ivy 'counsel 'which-key 'projectile 'counsel-projectile 'popup 'web-mode 'json-reformat 'recentf 'web-beautify 'vterm)
 
 ;; evil
 (setq evil-want-keybinding nil)
@@ -65,6 +65,9 @@ Return a list of installed packages or nil for every skipped package."
 (evil-define-key 'normal global-map (kbd "SPC w k") 'evil-window-split)
 (evil-define-key 'normal global-map (kbd "SPC w l") 'evil-window-vsplit)
 
+;; git
+(setq magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
+
 ;; typing behavior (?)
 (electric-pair-mode)
 (setq electric-pair-preserve-balance t)
@@ -72,6 +75,7 @@ Return a list of installed packages or nil for every skipped package."
 ;; Eglot
 (require 'eglot)
 (add-to-list 'eglot-server-programs '(web-mode . ("typescript-language-server" "--stdio")))
+(add-to-list 'eglot-server-programs '(rust-mode . ("~/.local/bin/rust-analyzer")))
 (add-to-list 'eglot-server-programs '(python-mode . ("python" "-m" "lsp")))
 (add-hook 'web-mode 'eglot-ensure)
 (add-hook 'eglot-managed-mode-hook (lambda ()
@@ -115,9 +119,11 @@ Return a list of installed packages or nil for every skipped package."
 (add-hook 'python-mode-hook 'eglot-ensure)
 
 ;; Rust
-
+(require 'rust-mode)
+(add-hook 'rust-mode-hook 'eglot-ensure)
 ;; TypeScript and Angular
 (add-to-list 'auto-mode-alist '("\\.ts\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
 
  
 ;; Company
@@ -160,7 +166,7 @@ Return a list of installed packages or nil for every skipped package."
  ;; If there is more than one, they won't work right.
  '(helm-minibuffer-history-key "M-p")
  '(package-selected-packages
-   '(flycheck-eglot json-reformat js2-mode dashboard treemacs-all-the-icons treemacs-evil treemacs counsel-projectile which-key counsel swiper ivy eglot flymake-eslint tide flymake vterm vertico use-package rainbow-delimiters monokai-theme magit lsp-ui lsp-treemacs lsp-pyright helm evil-visual-mark-mode evil-collection doom-modeline company ccls)))
+   '(rust-mode flycheck-eglot json-reformat js2-mode dashboard treemacs-all-the-icons treemacs-evil treemacs counsel-projectile which-key counsel swiper ivy eglot flymake-eslint tide flymake vterm vertico use-package rainbow-delimiters monokai-theme magit lsp-ui lsp-treemacs lsp-pyright helm evil-visual-mark-mode evil-collection doom-modeline company ccls)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
